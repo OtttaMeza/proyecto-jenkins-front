@@ -8,7 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = "react-app"
         CONTAINER_NAME = "react-container"
-        PORT = "3030"
+        PORT = "5001"
     }
 
     stages {
