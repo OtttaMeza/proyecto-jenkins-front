@@ -1,7 +1,14 @@
 - hosts: all
   become: true
+  gather_facts: false
 
   tasks:
+
+    - name: Install python and sudo
+      raw: apt update && apt install -y python3 sudo
+
+    - name: Gather facts
+      setup:
 
     - name: Install Docker
       apt:
@@ -9,10 +16,19 @@
         state: present
         update_cache: yes
 
-    - name: Install Kubernetes
+    - name: Add Kubernetes apt key
+      shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes repository
+      shell: |
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /" > /etc/apt/sources.list.d/kubernetes.list
+
+    - name: Install Kubernetes components
       apt:
         name:
           - kubelet
           - kubeadm
           - kubectl
+        update_cache: yes
         state: present
