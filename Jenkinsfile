@@ -62,8 +62,9 @@ pipeline {
 
            stage('Deploy K8s'){
               steps{
-              echo 'Deploying Nodes...'
-                sh 'kubectl apply -f k8s/'
+                echo 'Deploying Nodes...'
+                sh 'ansible master -i infra/ansible/inventory/hosts.yml -m copy -a "src=infra/k8s dest=/tmp/"'
+                sh 'ansible master -i infra/ansible/inventory/hosts.yml -m command -a "kubectl apply -f /tmp/k8s" --become'
               }
            }
     }
