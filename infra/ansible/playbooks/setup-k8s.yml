@@ -63,19 +63,15 @@
 
     - name: Create kube directory
       file:
-        path: /home/ubuntu/.kube
+        path: /root/.kube
         state: directory
-        owner: ubuntu
-        group: ubuntu
         mode: 0755
 
     - name: Copy kube config
       copy:
         src: /etc/kubernetes/admin.conf
-        dest: /home/ubuntu/.kube/config
+        dest: /root/.kube/config
         remote_src: yes
-        owner: ubuntu
-        group: ubuntu
 
     - name: Install Flannel network
       shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
