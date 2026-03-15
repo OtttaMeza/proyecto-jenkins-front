@@ -40,13 +40,16 @@ pipeline {
             }
         }
 
-         stage('Terraform Infra'){
-             steps{
-                echo 'Build terraform infra...'
-                dir('infra/terraform') {
-                    sh 'terraform init'
-                    sh 'terraform apply -auto-approve'
-                }
+         stage('Terraform Infra') {
+             steps {
+                 echo 'Building terraform infra...'
+                 dir('infra/terraform') {
+                     sh '''
+                     terraform init
+                     terraform plan
+                     terraform apply -auto-approve
+                     '''
+                 }
              }
          }
 
