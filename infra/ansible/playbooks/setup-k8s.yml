@@ -49,10 +49,14 @@
   become: true
   tasks:
 
+    - name: Disable swap
+      command: swapoff -a
+
     - name: Initialize Kubernetes master
-      shell: kubeadm init --pod-network-cidr=10.244.0.0/16
-      args:
-        creates: /etc/kubernetes/admin.conf
+      command: >
+        kubeadm init
+        --pod-network-cidr=10.244.0.0/16
+        --ignore-preflight-errors=all
 
     - name: Create kube directory
       file:
