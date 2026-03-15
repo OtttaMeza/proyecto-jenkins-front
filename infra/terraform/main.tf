@@ -14,6 +14,10 @@ resource "docker_image" "ubuntu_systemd" {
   keep_locally = true
 }
 
+resource "docker_volume" "master_containerd" {}
+resource "docker_volume" "worker1_containerd" {}
+resource "docker_volume" "worker2_containerd" {}
+
 resource "docker_container" "master" {
   name       = "master"
   image      = docker_image.ubuntu_systemd.name
@@ -24,6 +28,11 @@ resource "docker_container" "master" {
     host_path      = "/sys/fs/cgroup"
     container_path = "/sys/fs/cgroup"
     read_only      = false
+  }
+  
+  volumes {
+    volume_name    = docker_volume.master_containerd.name
+    container_path = "/var/lib/containerd"
   }
 }
 
@@ -38,6 +47,11 @@ resource "docker_container" "worker1" {
     container_path = "/sys/fs/cgroup"
     read_only      = false
   }
+
+  volumes {
+    volume_name    = docker_volume.worker1_containerd.name
+    container_path = "/var/lib/containerd"
+  }
 }
 
 resource "docker_container" "worker2" {
@@ -50,5 +64,10 @@ resource "docker_container" "worker2" {
     host_path      = "/sys/fs/cgroup"
     container_path = "/sys/fs/cgroup"
     read_only      = false
+  }
+
+  volumes {
+    volume_name    = docker_volume.worker2_containerd.name
+    container_path = "/var/lib/containerd"
   }
 }
