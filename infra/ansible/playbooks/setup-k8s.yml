@@ -19,12 +19,6 @@
         state: present
         update_cache: yes
 
-    - name: Enable Docker
-      service:
-        name: docker
-        state: started
-        enabled: yes
-
     - name: Create keyrings directory
       file:
         path: /etc/apt/keyrings
