@@ -4,7 +4,7 @@
   tasks:
 
     - name: Install python and sudo
-      raw: apt update && apt install -y python3 sudo
+      raw: apt update && apt install -y python3 sudo curl gpg
 
     - name: Gather facts
       setup:
@@ -19,6 +19,23 @@
         name: docker.io
         state: present
         update_cache: yes
+
+    - name: Create keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Kubernetes key
+      shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key \
+        | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes repo
+      copy:
+        dest: /etc/apt/sources.list.d/kubernetes.list
+        content: |
+          deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /
 
     - name: Install Kubernetes packages
       apt:
