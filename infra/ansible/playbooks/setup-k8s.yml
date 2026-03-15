@@ -11,7 +11,6 @@
 
 - hosts: all
   become: true
-
   tasks:
 
     - name: Install Docker
@@ -19,6 +18,12 @@
         name: docker.io
         state: present
         update_cache: yes
+
+    - name: Enable Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
 
     - name: Create keyrings directory
       file:
@@ -45,3 +50,52 @@
           - kubectl
         state: present
         update_cache: yes
+
+- hosts: master
+  become: true
+  tasks:
+
+    - name: Initialize Kubernetes master
+      shell: kubeadm init --pod-network-cidr=10.244.0.0/16
+      args:
+        creates: /etc/kubernetes/admin.conf
+
+    - name: Create kube directory
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: 0755
+
+    - name: Copy kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: yes
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Install Flannel network
+      shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+- hosts: master
+  become: true
+  tasks:
+
+    - name: Generate join command
+      shell: kubeadm token create --print-join-command
+      register: join_command
+
+    - name: Save join command
+      set_fact:
+        join_cmd: "{{ join_command.stdout }}"
+
+- hosts: workers
+  become: true
+  tasks:
+
+    - name: Join cluster
+      shell: "{{ hostvars['master'].join_cmd }} --ignore-preflight-errors=all"
