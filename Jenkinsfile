@@ -40,14 +40,25 @@ pipeline {
             }
         }
 
-        stage('Deploy Container') {
-            steps {
-                sh '''
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
-                docker run -d -p $PORT:80 --name $CONTAINER_NAME $IMAGE_NAME
-                '''
-            }
-        }
+         stage('Terraform Infra'){
+             steps{
+                echo 'Build terraform infra...'
+                sh 'terraform apply -auto-approve'
+             }
+         }
+
+          stage('Configure Nodes'){
+              steps{
+                echo 'Configuring Nodes...'
+                sh 'ansible-playbook infra/ansible/playbooks/setup-k8s.yml'
+              }
+          }
+
+           stage('Deploy K8s'){
+              steps{
+              echo 'Deploying Nodes...'
+                sh 'kubectl apply -f k8s/'
+              }
+           }
     }
 }
