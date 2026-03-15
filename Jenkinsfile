@@ -56,7 +56,7 @@ pipeline {
           stage('Configure Nodes'){
               steps{
                 echo 'Configuring Nodes...'
-                sh 'ansible-playbook infra/ansible/playbooks/setup-k8s.yml'
+                sh 'ansible-playbook -i infra/ansible/inventory/hosts.yml infra/ansible/playbooks/setup-k8s.yml'
               }
           }
 
