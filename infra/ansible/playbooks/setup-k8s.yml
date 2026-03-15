@@ -25,10 +25,13 @@
         state: directory
         mode: '0755'
 
-    - name: Add Kubernetes key
-      shell: |
-        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key \
-        | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - name: Download Kubernetes key
+      get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key
+        dest: /tmp/kubernetes.key
+
+    - name: Convert key
+      command: gpg --dearmor --batch --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes.key
 
     - name: Add Kubernetes repo
       copy:
