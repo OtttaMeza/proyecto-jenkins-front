@@ -24,6 +24,16 @@ resource "docker_container" "master" {
   privileged = true
   tty        = true
 
+  ports {
+    internal = 30007
+    external = 30007
+  }
+
+  ports {
+    internal = 80
+    external = 8080
+  }
+
   volumes {
     host_path      = "/sys/fs/cgroup"
     container_path = "/sys/fs/cgroup"
