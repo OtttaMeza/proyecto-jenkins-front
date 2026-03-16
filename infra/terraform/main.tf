@@ -31,7 +31,7 @@ resource "docker_container" "master" {
 
   ports {
     internal = 80
-    external = 8080
+    external = 30080
   }
 
   volumes {
